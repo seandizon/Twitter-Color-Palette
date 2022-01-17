@@ -1,3 +1,5 @@
+# Performs k-means clustering on a provided image.
+
 from PIL import Image, ImageDraw
 import numpy
 from sklearn.cluster import KMeans
@@ -38,5 +40,3 @@ def get_palette(n: int) -> None:
 
     # Plot.
     plot_colors(km, n)
-
-get_palette(10)
