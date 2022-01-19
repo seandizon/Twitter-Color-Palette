@@ -1,14 +1,16 @@
 # Performs k-means clustering on a provided image.
 
 from PIL import Image, ImageDraw
+import requests
 import numpy
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
 # This function will eventually change to get an image using the AIC api.
 # Current version is for testing purposes.
-def get_image(img_name: str) -> numpy.ndarray:
-    with Image.open(img_name) as im:
+def get_image(img_url: str) -> numpy.ndarray:
+    r = requests.get(img_url, stream=True)
+    with Image.open(r.raw) as im:
         return numpy.array(im)
 
 # Matplotlibs requires ints (1-255) or floats (0.00-1.00).
@@ -26,11 +28,11 @@ def plot_colors(clusters: numpy.ndarray, n: int) -> None:
     plt.show()
 
 # Will eventually return an image.
-def get_palette(n: int) -> None:
+def get_palette(img_url: str, n: int) -> None:
     # Get 3d array from image and turn into a 2d array for k-means.
     # -1 bc we don't know how many rows we'll get (technically we do, it's original row * column).
     # 3 for 3 columns: r,g,b.
-    img = get_image("5.jpg").reshape((-1,3))
+    img = get_image(img_url).reshape((-1,3))
 
     # K-means clustering finds n dominant colors.
     km = KMeans(n_clusters=n).fit(img).cluster_centers_
