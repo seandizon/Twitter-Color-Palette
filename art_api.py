@@ -42,7 +42,8 @@ def get_payload() -> dict:
                                 "classification_titles.keyword": [
                                     "sculpture", "metal", "graphite", "glass",
                                     "furniture", "stoneware", "ceramics", "jade",
-                                    "brass", "metalwork", "silver", "jewelry"
+                                    "brass", "metalwork", "silver", "jewelry",
+                                    "bowl"
                                 ]
                             }
                         },

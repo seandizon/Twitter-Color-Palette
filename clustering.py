@@ -5,6 +5,7 @@ import requests
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 
 # Get an image from a provided url.
 def get_image(img_url: str) -> np.ndarray:
@@ -31,13 +32,25 @@ def get_palette(img_url: str, n: int) -> None:
     km = KMeans(n_clusters=n).fit(img).cluster_centers_
 
     # Round each value to nearest integer and create color palette.
-    palette = create_palette_image(np.around(km).astype("uint8"))
+    palette = create_palette_image(np.around(km).astype("uint8"), "RGB")
     palette.show()
+
+    # # Compared RGB and HSV palettes. RGB seems better overall. Will retest again.
+    # # HSV Test
+    # hsv = colors.rgb_to_hsv(img.astype("float32") / 255)
+    # km = KMeans(n_clusters=n).fit(hsv).cluster_centers_
+    #
+    # for i in km:
+    #     i[0] *= 179
+    #     i[1] *= 255
+    #     i[2] *= 255
+    # hsv_palette = create_palette_image(np.around(km).astype("uint8"), "HSV")
+    # hsv_palette.show()
 
     return palette
 
 # Get color palette of size (width, height).
-def create_palette_image(c: list) -> Image:
+def create_palette_image(c: list, color_mode: str) -> Image:
     # Dimensions for each section of colors.
     SECTION_WIDTH = 128
     SECTION_HEIGHT = 720
@@ -47,8 +60,8 @@ def create_palette_image(c: list) -> Image:
     palette_height = SECTION_HEIGHT
 
     # Create blank picture.
-    palette_image = Image.new("RGB", (palette_width, palette_height))
-    draw = ImageDraw.Draw(palette_image, "RGB")
+    palette_image = Image.new(color_mode, (palette_width, palette_height))
+    draw = ImageDraw.Draw(palette_image, color_mode)
 
     # Loop through colors and draw each color section inside of the image.
     width_offset = 0
