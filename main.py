@@ -10,18 +10,18 @@ pp = pprint.PrettyPrinter(indent=4)
 
 def main():
     # Get a random image along with any required information about it.
-    # img_info = ap.get_random_art()[0]
-    # pp.pprint(img_info)
-    #
-    # # Perform k-means and draw.
-    # NUM_CLUSTERS = 10
-    # img_url = ap.create_image_link(img_info["image_id"])
-    # print(img_url)
-    # cl.get_palette(img_url, NUM_CLUSTERS)
+    artwork = ap.Art()
+    pp.pprint(artwork.info)
+    print(artwork.caption)
+
+    # Perform k-means and draw.
+    NUM_CLUSTERS = 10
+    palette = cl.get_palette(artwork, NUM_CLUSTERS)
+    palette.show()
 
     # Upload to twitter.
-    api = tw.get_api()
-    api.update_status(status="Test with 1.1")
+    # api = tw.get_api()
+    # api.update_status(status=artwork.caption)
 
 
 

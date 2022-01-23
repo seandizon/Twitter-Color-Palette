@@ -5,12 +5,12 @@ import requests
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+from art_api import Art
 import matplotlib.colors as colors
 
 # Get an image from a provided url.
-def get_image(img_url: str) -> np.ndarray:
-    r = requests.get(img_url, stream=True)
-    with Image.open(r.raw) as im:
+def get_image(art: Art) -> np.ndarray:
+    with Image.open(art.raw_image) as im:
         return np.array(im)
 
 # Show dominant colors on a plot.
@@ -22,18 +22,17 @@ def plot_colors(clusters: np.ndarray) -> None:
     plt.show()
 
 # Will eventually return an image.
-def get_palette(img_url: str, n: int) -> None:
+def get_palette(art: Art, n: int) -> Image:
     # Get 3d array from image and turn into a 2d array for k-means.
     # -1 bc we don't know how many rows we'll get (technically we do, it's original row * column).
     # 3 for 3 columns: r,g,b.
-    img = get_image(img_url).reshape((-1,3))
+    img = get_image(art).reshape((-1,3))
 
     # K-means clustering finds n dominant colors.
     km = KMeans(n_clusters=n).fit(img).cluster_centers_
 
     # Round each value to nearest integer and create color palette.
     palette = create_palette_image(np.around(km).astype("uint8"), "RGB")
-    palette.show()
 
     # # Compared RGB and HSV palettes. RGB seems better overall. Will retest again.
     # # HSV Test
