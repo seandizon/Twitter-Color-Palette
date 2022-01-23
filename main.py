@@ -3,14 +3,10 @@
 import art_api as ap
 import clustering as cl
 import twitter_api as tw
-import pprint
-
-pp = pprint.PrettyPrinter(indent=4)
 
 def main():
     # Get a random image along with any required information about it.
     artwork = ap.Art()
-    pp.pprint(artwork.info)
 
     # Perform k-means and draw palette.
     palette = cl.get_palette(artwork, 10)

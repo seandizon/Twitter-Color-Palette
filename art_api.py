@@ -3,6 +3,9 @@
 import requests
 import time
 import os
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -16,10 +19,14 @@ class Art:
         self.link = "https://www.artic.edu/artworks/" + str(img["id"])
 
         if img["title"]:
-            if len(img["title"]) < 140:
+            max_tweet_len = 280
+            current_tweet_len = len(self.artist) + len(self.date) + len(self.link) + 3 # 3 newlines
+
+            if (len(img["title"]) + current_tweet_len) <= max_tweet_len:
                 self.title = img["title"]
             else:
-                self.title = img["title"][:137] + "..."
+                available_characters = max_tweet_len - current_tweet_len - 3 # ellipsis
+                self.title = img["title"][:available_characters] + "..."
 
         # Download image
         self.image_link = self._create_image_link_(img["image_id"])
@@ -39,14 +46,15 @@ class Art:
         r = requests.post(art_url, json=payload, headers=AIC_header)
         print(r.request.headers)
         print(r.json()["pagination"]) # see number of results
-        return r.json()["data"][0]
+        pp.pprint(r.json()["data"])
+        return r.json()["data"][time.time_ns() % 3]
 
     def _create_image_link_(self, image_id: str) -> str:
         return f"https://www.artic.edu/iiif/2/{image_id}/full/843,/0/default.jpg"
 
     def _get_payload_(self) -> dict:
         return {
-            "limit": 1,
+            "limit": 3,
             "fields": ','.join([
                 # to be included in the artwork caption
                 "artist_title",
@@ -73,7 +81,7 @@ class Art:
                                         "sculpture", "metal", "graphite", "glass",
                                         "furniture", "stoneware", "ceramics", "jade",
                                         "brass", "metalwork", "silver", "jewelry",
-                                        "bowl", "weapon"
+                                        "bowl", "weapon", "pen and ink drawings"
                                     ]
                                 }
                             },
@@ -91,7 +99,7 @@ class Art:
                                     "terms": {
                                         "classification_titles.keyword": [
                                             "painting", "asian art", "modern and contemporary art",
-                                            "watercolor", "american arts"
+                                            "watercolor", "american arts", "drawings (visual works)"
                                         ]
                                     }
                                 },
