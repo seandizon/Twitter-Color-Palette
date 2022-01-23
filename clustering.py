@@ -1,7 +1,7 @@
 # Performs k-means clustering on a provided image.
 
 from PIL import Image, ImageDraw
-import requests
+from io import BytesIO
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
@@ -51,8 +51,8 @@ def get_palette(art: Art, n: int) -> Image:
 # Get color palette of size (width, height).
 def create_palette_image(c: list, color_mode: str) -> Image:
     # Dimensions for each section of colors.
-    SECTION_WIDTH = 128
-    SECTION_HEIGHT = 720
+    SECTION_WIDTH = 64
+    SECTION_HEIGHT = 480
 
     # Dimension of entire picture.
     palette_width = len(c) * SECTION_WIDTH
@@ -69,3 +69,9 @@ def create_palette_image(c: list, color_mode: str) -> Image:
         width_offset += SECTION_WIDTH
 
     return palette_image
+
+# Turn Image to raw bytes.
+def image_to_bytes(img: Image) -> bytes:
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    return buffer.getvalue()

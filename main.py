@@ -3,7 +3,6 @@
 import art_api as ap
 import clustering as cl
 import twitter_api as tw
-
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -12,18 +11,19 @@ def main():
     # Get a random image along with any required information about it.
     artwork = ap.Art()
     pp.pprint(artwork.info)
-    print(artwork.caption)
 
-    # Perform k-means and draw.
-    NUM_CLUSTERS = 10
-    palette = cl.get_palette(artwork, NUM_CLUSTERS)
-    palette.show()
+    # Perform k-means and draw palette.
+    palette = cl.get_palette(artwork, 10)
 
     # Upload to twitter.
-    # api = tw.get_api()
-    # api.update_status(status=artwork.caption)
+    api = tw.get_api()
 
+    pictures = [
+        api.simple_upload(filename="art", file=artwork.raw_image).media_id,
+        api.simple_upload(filename="palette", file=cl.image_to_bytes(palette)).media_id
+    ]
 
+    api.update_status(status=artwork.caption, media_ids=pictures)
 
 if __name__ == "__main__":
     main()
