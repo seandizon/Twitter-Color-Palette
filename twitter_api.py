@@ -1,10 +1,6 @@
 # Twitter authentication and uploading of tweets including artwork and palette
 import os
 import tweepy
-from dotenv import load_dotenv
-
-# Comment out in production
-load_dotenv()
 
 def get_api() -> tweepy.API:
     consumer_key = os.environ.get("CONSUMER_KEY")

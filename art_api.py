@@ -5,11 +5,6 @@ import time
 import os
 import pprint
 
-pp = pprint.PrettyPrinter(indent=4)
-
-from dotenv import load_dotenv
-load_dotenv()
-
 class Art:
     def __init__(self):
         img = self._get_random_art_()
@@ -37,15 +32,38 @@ class Art:
 
     @property
     def raw_image(self):
-        return requests.get(self.image_link, stream=True).raw
+        attempts = 0
+        done = False
+        while not done:
+            try:
+                r = requests.get(self.image_link, stream=True)
+                r.raise_for_status()
+                done = True
+            except requests.exceptions.RequestException:
+                attempts += 1
+                if attempts >= 3:
+                    raise
+
+        return r.raw
 
     def _get_random_art_(self) -> list:
         art_url = "https://api.artic.edu/api/v1/artworks/search"
         payload = self._get_payload_()
         AIC_header = {"AIC-User-Agent": f'Twitter Color Palette Bot ({os.environ.get("EMAIL")})'}
-        r = requests.post(art_url, json=payload, headers=AIC_header)
-        print(r.request.headers)
-        print(r.json()["pagination"]) # see number of results
+
+        attempts = 0
+        done = False
+        while not done:
+            try:
+                r = requests.post(art_url, json=payload, headers=AIC_header)
+                r.raise_for_status()
+                done = True
+            except requests.exceptions.RequestException:
+                attempts += 1
+                if attempts >= 3:
+                    raise
+
+        pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(r.json()["data"])
         return r.json()["data"][time.time_ns() % 3]
 

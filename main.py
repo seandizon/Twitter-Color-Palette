@@ -4,6 +4,10 @@ import art_api as ap
 import clustering as cl
 import twitter_api as tw
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 def main():
     # Get a random image along with any required information about it.
     artwork = ap.Art()
