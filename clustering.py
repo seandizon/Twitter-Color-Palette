@@ -6,9 +6,8 @@ import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from art_api import Art
-import matplotlib.colors as colors
 
-# Get an image from a provided url.
+# Get an image from a provided Art object.
 def get_image(art: Art) -> np.ndarray:
     with Image.open(art.raw_image) as im:
         return np.array(im)
@@ -21,7 +20,7 @@ def plot_colors(clusters: np.ndarray) -> None:
     plt.imshow(np.around(clusters.reshape((-1,1,3))).astype("uint8"))
     plt.show()
 
-# Will eventually return an image.
+# Performs k-means clustering on an image and returns the palette.
 def get_palette(art: Art, n: int) -> Image:
     # Get 3d array from image and turn into a 2d array for k-means.
     # -1 bc we don't know how many rows we'll get (technically we do, it's original row * column).
@@ -32,21 +31,7 @@ def get_palette(art: Art, n: int) -> Image:
     km = KMeans(n_clusters=n).fit(img).cluster_centers_
 
     # Round each value to nearest integer and create color palette.
-    palette = create_palette_image(np.around(km).astype("uint8"), "RGB")
-
-    # # Compared RGB and HSV palettes. RGB seems better overall. Will retest again.
-    # # HSV Test
-    # hsv = colors.rgb_to_hsv(img.astype("float32") / 255)
-    # km = KMeans(n_clusters=n).fit(hsv).cluster_centers_
-    #
-    # for i in km:
-    #     i[0] *= 179
-    #     i[1] *= 255
-    #     i[2] *= 255
-    # hsv_palette = create_palette_image(np.around(km).astype("uint8"), "HSV")
-    # hsv_palette.show()
-
-    return palette
+    return create_palette_image(np.around(km).astype("uint8"), "RGB")
 
 # Get color palette of size (width, height).
 def create_palette_image(c: list, color_mode: str) -> Image:

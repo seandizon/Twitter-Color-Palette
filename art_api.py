@@ -9,8 +9,8 @@ class Art:
     def __init__(self):
         img = self._get_random_art_()
         self.info = img
-        self.artist = img["artist_title"] if img["artist_title"] else "Unknown"
-        self.date = img["date_display"] if img["date_display"] else "Unknown"
+        self.artist = img["artist_title"] if img["artist_title"] else "Artist unknown"
+        self.date = img["date_display"] if img["date_display"] else "Date unknown"
         self.link = "https://www.artic.edu/artworks/" + str(img["id"])
 
         if img["title"]:
@@ -22,16 +22,18 @@ class Art:
             else:
                 available_characters = max_tweet_len - current_tweet_len - 3 # ellipsis
                 self.title = img["title"][:available_characters] + "..."
+        else:
+            self.title = "Title unknown"
 
         # Download image
         self.image_link = self._create_image_link_(img["image_id"])
 
     @property
-    def caption(self):
+    def caption(self) -> str:
         return f"{self.artist}\n{self.title}\n{self.date}\n{self.link}"
 
     @property
-    def raw_image(self):
+    def raw_image(self) -> bytes:
         attempts = 0
         done = False
         while not done:
