@@ -16,7 +16,6 @@ def get_image(art: Art) -> np.ndarray:
 def plot_colors(clusters: np.ndarray) -> None:
     # Need to turn the cluster centers from 2d to 3d.
     # Round each value to nearest integer.
-    # Show palette on a graph.
     plt.imshow(np.around(clusters.reshape((-1,1,3))).astype("uint8"))
     plt.show()
 
@@ -49,8 +48,8 @@ def create_palette_image(c: list, color_mode: str) -> Image:
 
     # Loop through colors and draw each color section inside of the image.
     width_offset = 0
-    for i in c:
-        draw.rectangle([(width_offset, 0), (width_offset+SECTION_WIDTH, SECTION_HEIGHT)], tuple(i))
+    for color in c:
+        draw.rectangle([(width_offset, 0), (width_offset+SECTION_WIDTH, SECTION_HEIGHT)], tuple(color))
         width_offset += SECTION_WIDTH
 
     return palette_image

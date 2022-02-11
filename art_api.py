@@ -8,11 +8,11 @@ import pprint
 class Art:
     def __init__(self):
         img = self._get_random_art_()
-        self.info = img
         self.artist = img["artist_title"] if img["artist_title"] else "Artist unknown"
         self.date = img["date_display"] if img["date_display"] else "Date unknown"
         self.link = "https://www.artic.edu/artworks/" + str(img["id"])
 
+        # Make sure the title fits in the tweet.
         if img["title"]:
             max_tweet_len = 280
             current_tweet_len = len(self.artist) + len(self.date) + len(self.link) + 3 # 3 newlines
@@ -25,8 +25,8 @@ class Art:
         else:
             self.title = "Title unknown"
 
-        # Download image
-        self.image_link = self._create_image_link_(img["image_id"])
+        # For downloading the image.
+        self.image_link = f"https://www.artic.edu/iiif/2/{img['image_id']}/full/843,/0/default.jpg"
 
     @property
     def caption(self) -> str:
@@ -65,30 +65,31 @@ class Art:
                 if attempts >= 3:
                     raise
 
+        # Just to see retrieved data.
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(r.json()["data"])
-        return r.json()["data"][time.time_ns() % 3]
 
-    def _create_image_link_(self, image_id: str) -> str:
-        return f"https://www.artic.edu/iiif/2/{image_id}/full/843,/0/default.jpg"
+        return r.json()["data"][time.time_ns() % 3]
 
     def _get_payload_(self) -> dict:
         return {
             "limit": 3,
             "fields": ','.join([
-                # to be included in the artwork caption
+                # Included in the caption for the tweet.
                 "artist_title",
                 "title",
                 "date_display",
-                "id", # for link
+                "id", # For link to artwork on AIC website.
 
-                # needed to download image for processing
+                # For link to download image for processing.
                 "image_id",
 
-                # make sure it's copyright free
-                "is_public_domain",
-                "colorfulness",
-                "classification_titles"
+                # Mostly just to see artwork details to further help refine the query.
+                "is_public_domain",     # Just to see that it's in the public domain.
+                "colorfulness",         # See how colorfulness is applied to artwork.
+                "classification_titles" # If there is artwork I don't want to be included in the query,
+                                        # I can find the classification title and put it in the must_not
+                                        # query section.
             ]),
             "boost": False,
             "query": {
@@ -97,6 +98,7 @@ class Art:
                         "bool": {
                             "must_not": {
                                 "terms": {
+                                    # Artwork I want to ignore.
                                     "classification_titles.keyword": [
                                         "sculpture", "metal", "graphite", "glass",
                                         "furniture", "stoneware", "ceramics", "jade",
@@ -108,15 +110,15 @@ class Art:
                             "filter": [
                                 {
                                     "range": {
+                                        # Don't want artwork only having the colors black and white.
                                         "colorfulness": {
-                                            # black and white artwork have a value of 0,
-                                            # we want to avoid those
                                             "gte": 1
                                         }
                                     }
                                 },
                                 {
                                     "terms": {
+                                        # Artwork I want.
                                         "classification_titles.keyword": [
                                             "painting", "asian art", "modern and contemporary art",
                                             "watercolor", "american arts", "drawings (visual works)"
@@ -125,12 +127,14 @@ class Art:
                                 },
                                 {
                                     "term": {
-                                        "is_public_domain": True # copyright free
+                                        # Make sure artwork is copyright free.
+                                        "is_public_domain": True
                                     }
                                 },
                                 {
                                     "exists": {
-                                        "field": "image_id" # downloadable
+                                        # Make sure artwork can be downloaded.
+                                        "field": "image_id"
                                     }
                                 }
                             ]
@@ -138,6 +142,7 @@ class Art:
                     },
                     "boost_mode": "replace",
                     "random_score": {
+                        # Retrieves random artwork.
                         "seed": time.time_ns(),
                         "field": "id"
                     }
